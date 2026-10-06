@@ -261,6 +261,9 @@ h3 { font-size: 1rem; margin: 0; }
 
 @media (max-width: 520px) {
   .picks { grid-template-columns: 1fr; }
+  /* Room for the full name, so e.g. a Pokémon and its shadow form never truncate to the same text. */
+  .opt-meta .type { display: none; }
+  .opt-name { white-space: normal; overflow: visible; }
   .team-icons .poke { width: 28px; height: 28px; }
 }
 
