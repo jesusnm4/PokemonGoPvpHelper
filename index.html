@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PvP Team Helper</title>
+  <meta name="description" content="Build Pokémon GO PvP teams: suggested partners, moves, IVs, strengths and weaknesses.">
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>PvP Team Helper</h1>
+    <label class="theme-picker">
+      Theme
+      <select id="theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+  </header>
+
+  <main>
+    <section class="panel">
+      <fieldset>
+        <legend>League</legend>
+        <div class="segmented">
+          <label><input type="radio" name="league" value="great"> Great <small>1500</small></label>
+          <label><input type="radio" name="league" value="ultra"> Ultra <small>2500</small></label>
+          <label><input type="radio" name="league" value="master"> Master <small>no cap</small></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Team style</legend>
+        <div class="segmented">
+          <label title="Three different typings and roles"><input type="radio" name="style" value="abc"> ABC <small>balanced</small></label>
+          <label title="Safe swap and closer share a type"><input type="radio" name="style" value="abb"> ABB</label>
+          <label title="Lead and closer share a type"><input type="radio" name="style" value="aba"> ABA</label>
+          <label title="No structural constraint"><input type="radio" name="style" value="any"> Any</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your Pokémon</legend>
+        <p class="placeholder">Pokémon search arrives in milestone 4.</p>
+      </fieldset>
+    </section>
+
+    <section class="panel" id="results">
+      <p class="placeholder">Suggested teams will appear here.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Data and rankings from <a href="https://pvpoke.com">PvPoke</a> (MIT License).
+    Unofficial fan project; Pokémon and Pokémon GO are trademarks of their respective owners.
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
