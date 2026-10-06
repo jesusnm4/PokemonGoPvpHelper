@@ -22,8 +22,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Download and trim
         run: python3 scripts/update_data.py
+
+      # A PvPoke change that breaks the engine must not reach the live site.
+      - name: Engine tests against the new data
+        run: node scripts/run-tests.js
 
       - name: Commit if changed
         run: |

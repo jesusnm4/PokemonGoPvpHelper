@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Engine Tests</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .summary { font-weight: 600; }
+    .summary.fail, .fail .status { color: var(--error); }
+    .pass .status { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    td { padding: 4px 8px; border-top: 1px solid var(--border); vertical-align: top; }
+    td.detail { color: var(--muted); overflow-wrap: anywhere; }
+    .status { font-weight: 600; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header class="site-header"><h1>Engine Tests</h1></header>
+  <main>
+    <section class="panel">
+      <p class="summary" id="summary">Running…</p>
+      <table><tbody id="rows"></tbody></table>
+    </section>
+  </main>
+
+  <script src="data/gamemaster.js"></script>
+  <script src="data/rankings-great.js"></script>
+  <script src="data/rankings-ultra.js"></script>
+  <script src="data/rankings-master.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/engine.test.js"></script>
+  <script>
+    (function () {
+      var results = window.EngineTests.results;
+      var failed = results.filter(function (r) { return !r.pass; }).length;
+      var summary = document.getElementById('summary');
+      summary.textContent = (results.length - failed) + ' passed, ' + failed + ' failed';
+      if (failed) summary.className += ' fail';
+      var tbody = document.getElementById('rows');
+      results.forEach(function (r) {
+        var tr = document.createElement('tr');
+        tr.className = r.pass ? 'pass' : 'fail';
+        [r.pass ? 'PASS' : 'FAIL', r.name, r.detail].forEach(function (text, i) {
+          var td = document.createElement('td');
+          td.className = ['status', 'name', 'detail'][i];
+          td.textContent = String(text);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -20,6 +20,12 @@ milestones live in `PLAN.md`.
   `PvpData.rankings(league)` as promises. Rankings entries are trimmed: `id`, `score`, `roles`
   (lead, closer, switch, charger, attacker, consistency), `moveset`, `wins`/`losses` as
   `[opponentId, rating]`.
+- Tests: `node scripts/run-tests.js` (headless) or `tests.html` (source of truth). Add coverage as
+  `test(...)` blocks in `js/engine.test.js`; run the suite before every push.
+- Simulator changes: re-check agreement with PvPoke's listed wins/losses (1-1 shields) before and
+  after, and keep the figure in `PLAN.md` and the README current.
+- Engine functions take the gamemaster and rankings as arguments; `Engine.createContext` builds a
+  league context whose matchup rows are cached, so reuse a context across searches.
 - Wrap all `localStorage` access in try/catch, and re-validate persisted fields in `load()`.
 - Keep the README's status table and `PLAN.md` milestones current with each milestone. The user
   asked for the README to be kept up to date as the project grows.

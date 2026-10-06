@@ -33,30 +33,43 @@ PvPoke's `defaultIVs`, which are not always the rank-1 spread.
 
 ## Engine
 
-1. **Meta:** the top ~100 Pokémon in the chosen league's rankings, weighted by PvPoke score. These
-   are the threats a team must answer.
-2. **Matchup estimate (v1, type-based):** for each team member against each threat, combine
-   - offense: the best effectiveness × STAB of its recommended moves against the threat's types
-   - defense: how hard the threat's recommended moves hit it
-   - bulk and power: both sides' league-capped stats at their rank-1 IVs
+All in `js/engine.js`, pure and DOM-free.
 
-   PvPoke's own top 5 matchups and counters override the estimate where they apply. This is a
-   heuristic, not a battle simulator.
-3. **Team score:** meta coverage (for each threat, the team's best answer, weighted by the
-   threat's score), minus a penalty for shared weaknesses (a type that hits two or more members
-   super-effectively).
-4. **Search:**
-   - given 1 Pokémon: try every pair from the top ~150 (about 11k teams, instant in the browser)
-   - given 2 Pokémon: score every candidate for the third slot
+1. **Meta:** the top 100 Pokémon in the chosen league's rankings. These are the threats a team
+   must answer, weighted by rank: #1 counts 1, #25 counts 0.5, #100 counts 0.2.
+2. **Stats:** every Pokémon is simulated at its rank-1 stat product IVs for the league (max level
+   50; 15/15/15 at level 50 in Master League), with PvPoke's IV floors (traded legendaries 1,
+   shadow legendaries 6, untradeable 10) and shadow attack ×1.2 / defense ×0.833.
+3. **Matchups: a simplified battle simulator.** Each Pokémon uses PvPoke's recommended moveset,
+   with the game's damage formula and turn timing. Policy: bait with the cheapest charged move
+   while the opponent has shields, otherwise wait for the best damage-per-energy move unless a
+   cheaper one knocks out or this side is about to faint; defenders always shield. Guaranteed stat
+   buffs, Mimikyu's Disguise and Cramorant's Gulp Missile are modelled. The rating is PvPoke's
+   battle rating (500 = even, 1000 = flawless win), averaged over 0-0, 1-1 and 2-2 shields.
 
-   Show the best few teams, not just one.
-5. **Team style:** the common PvP structures, named by how the lead (A), safe swap (B) and
+   Checked against the top 5 wins and losses PvPoke lists for each of the top 100 Pokémon (its
+   1-1 shield results): the simulator picks the same winner **84%** of the time in Great and Ultra
+   League, with an average gap of 62–74 rating points. Known gaps: chance-based buffs, Aegislash
+   and Morpeko form changes, and PvPoke's smarter shielding and baiting decisions.
+4. **Team score:** for each threat, the chance the team's best answer wins (a smooth curve over
+   the rating), weighted by the threat's rank; plus 0.2× the same for the second-best answer
+   (a backup), minus 0.02 per extra member hit super-effectively by a shared weakness, plus a
+   small bonus for the members' own PvPoke scores.
+5. **Search:**
+   - given 1 Pokémon: every pair from the top 150 (about 11k teams, under a second)
+   - given 2 Pokémon: every candidate for the third slot
+
+   GO Battle League allows one of each species, so partners sharing a Pokédex number with a pick
+   (shadow forms included) are excluded. Results show the best 5 teams; with one pick, no
+   partner appears in more than two of them so the list has variety.
+6. **Team style:** the common PvP structures, named by how the lead (A), safe swap (B) and
    closer slots overlap in typing:
-   - **ABC (balanced):** three distinct typings and roles. This is the default.
-   - **ABB:** the safe swap and the closer share a type, doubling down against what beats the lead.
-   - **ABA:** the lead and the closer share a type, giving two answers to the most common threat.
+   - **ABC (balanced):** no two members share a type. This is the default.
+   - **ABB:** the safe swap and the closer share a type; the lead shares none with them.
+   - **ABA:** the lead and the closer share a type; the safe swap shares none with them.
    - **Any:** no structural constraint, best score wins.
-6. **Roles:** each member is placed as lead, safe swap, or closer using PvPoke's role sub-scores.
+7. **Roles:** each team is ordered lead / safe swap / closer by PvPoke's role sub-scores, choosing
+   the order that fits the style with the highest combined role score.
 
 ## Output
 
@@ -66,8 +79,9 @@ For each team member:
 - recommended IVs: rank-1 stat product IVs, level, and CP for the league
 
 For the team:
-- top 3 strengths: meta threats the team handles best
-- top 3 weaknesses: meta threats it handles worst, plus any shared type weakness
+- top 3 strengths: the top-30 meta threats the team handles best, and which member answers each
+- top 3 weaknesses: the top-30 meta threats it handles worst, plus any type that hits two or more
+  members super-effectively
 
 ## Layout
 
@@ -76,10 +90,10 @@ the site also works when opened over `file://`.
 
 ```
 js/theme.js    light/dark theme, applied before first paint
-js/data.js     loads data/*.json
-js/engine.js   pure logic: type chart, CP/IV math, matchups, team scoring. No DOM.
+js/data.js     loads data/*.js on demand
+js/engine.js   pure logic: type chart, CP/IV math, battle simulator, team scoring. No DOM.
 js/app.js      state, form wiring, rendering
-tests.html     runs js/engine.test.js in the browser
+tests.html     runs js/engine.test.js in the browser (scripts/run-tests.js runs it in Node)
 ```
 
 ## Milestones
@@ -87,9 +101,11 @@ tests.html     runs js/engine.test.js in the browser
 1. **Scaffold:** page skeleton (league and style pickers, theme), README, this plan, Pages-ready
    layout. ✅
 2. **Data pipeline:** Action that snapshots and trims PvPoke data, plus attribution. ✅
-3. **Core engine:** type chart, CP/IV math, matchup estimate, team scoring, team styles, with tests.
+3. **Core engine:** type chart, CP/IV math, battle simulator, team scoring, team styles, with
+   tests and a CI workflow that runs them. ✅
 4. **UI:** Pokémon search with autocomplete (shadow forms included), "suggest 2" and "suggest 1"
    modes, team cards, strengths and weaknesses.
 5. **Polish:** mobile layout, shareable URL for a team, a "check my IVs" input that compares your
    Pokémon's IVs against rank 1.
-6. **Later (optional):** a real battle simulator for matchups, and limited-format cups.
+6. **Later (optional):** closer simulator accuracy (chance buffs, Aegislash, smarter shielding),
+   and limited-format cups.

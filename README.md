@@ -9,15 +9,15 @@ current meta.
 
 ## Status
 
-🚧 Early development. The page loads the current PvPoke rankings for all three leagues; team
-suggestions are not wired up yet. See [PLAN.md](PLAN.md) for the design and milestones.
+🚧 Early development. The team-building engine works and is tested; the page does not use it yet
+(that's the next milestone). See [PLAN.md](PLAN.md) for the design and milestones.
 
 | Milestone | State |
 | --- | --- |
 | 1. Scaffold | ✅ done |
 | 2. Data pipeline (PvPoke snapshot) | ✅ done |
-| 3. Core engine | ⏳ next |
-| 4. UI | — |
+| 3. Core engine | ✅ done |
+| 4. UI | ⏳ next |
 | 5. Polish | — |
 
 ## Features (planned)
@@ -35,6 +35,24 @@ No build step and no dependencies. Open `index.html` directly, or serve the fold
 ```sh
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
+
+## How it works
+
+Teams are scored with a simplified battle simulator: every Pokémon at its rank-1 IVs with PvPoke's
+recommended moveset, battling each of the top 100 Pokémon in the league with 0, 1 and 2 shields.
+It agrees with PvPoke's own results on the winner about 84% of the time. Suggestions favour teams
+whose members cover each other's losses and don't share weaknesses. Details in [PLAN.md](PLAN.md).
+
+## Tests
+
+Open `tests.html` in a browser, or run them headless with Node (no dependencies):
+
+```sh
+node scripts/run-tests.js            # add --verbose to list every check
+```
+
+The **Tests** GitHub Action runs them on every push, and the weekly data refresh runs them before
+committing new data.
 
 ## Data
 

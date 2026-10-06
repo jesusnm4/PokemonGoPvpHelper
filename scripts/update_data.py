@@ -21,9 +21,9 @@ MIN_POKEMON = 1000
 MIN_MOVES = 250
 MIN_RANKED = 300
 
-POKEMON_TAGS = {"shadow", "shadoweligible", "legendary", "mythical", "ultrabeast"}
+POKEMON_TAGS = {"shadow", "shadoweligible", "legendary", "mythical", "ultrabeast", "untradeable", "wildlegendary"}
 MOVE_FIELDS = ("moveId", "name", "type", "power", "energy", "energyGain", "turns",
-               "buffs", "buffTarget", "buffApplyChance", "buffsSelf", "buffsOpponent")
+               "buffs", "buffTarget", "buffApplyChance", "buffsSelf", "buffsOpponent", "damageMethod")
 
 
 def fetch_json(path):
@@ -32,7 +32,7 @@ def fetch_json(path):
         return json.load(resp)
 
 
-def trim_pokemon(p):
+def trim_pokemon(p, all_by_id):
     out = {
         "id": p["speciesId"],
         "name": p["speciesName"],
@@ -52,6 +52,18 @@ def trim_pokemon(p):
         out["nicknames"] = p["nicknames"]
     if p.get("levelFloor"):
         out["levelFloor"] = p["levelFloor"]
+    # Form-change abilities (Mimikyu's Disguise, Cramorant's Gulp Missile, ...): the engine models
+    # the ones it recognises and ignores the rest.
+    if p.get("formChange"):
+        change = dict(p["formChange"])
+        # The form changed into is often unreleased (mimikyu_busted) and so not in the snapshot;
+        # carry its stat stages over.
+        target = all_by_id.get(change.get("alternativeFormId"))
+        if target and target.get("nativeStatBuffs"):
+            change["alternativeStatBuffs"] = target["nativeStatBuffs"]
+        out["formChange"] = change
+    if p.get("nativeStatBuffs"):
+        out["nativeStatBuffs"] = p["nativeStatBuffs"]
     return out
 
 
@@ -60,8 +72,9 @@ def trim_move(m):
 
 
 def trim_gamemaster(gm):
+    all_by_id = {p["speciesId"]: p for p in gm["pokemon"]}
     pokemon = [
-        trim_pokemon(p) for p in gm["pokemon"]
+        trim_pokemon(p, all_by_id) for p in gm["pokemon"]
         if p.get("released") and "mega" not in p.get("tags", []) and "supermega" not in p.get("tags", [])
     ]
     moves = [trim_move(m) for m in gm["moves"]]
