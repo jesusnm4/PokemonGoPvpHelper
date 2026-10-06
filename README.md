@@ -10,8 +10,8 @@ current meta.
 ## Status
 
 Live at **https://jesusnm4.github.io/PokemonGoPvpHelper/**. Pick a league, a team style and one or
-two Pokémon to get suggested teams, share them as a link, and check your own Pokémon's IVs. Next
-up: Pokémon images on the team cards. See [PLAN.md](PLAN.md) for the design and milestones.
+two Pokémon to get suggested teams, share them as a link, and check your own Pokémon's IVs. See
+[PLAN.md](PLAN.md) for the design and milestones.
 
 | Milestone | State |
 | --- | --- |
@@ -20,7 +20,7 @@ up: Pokémon images on the team cards. See [PLAN.md](PLAN.md) for the design and
 | 3. Core engine | ✅ done |
 | 4. UI | ✅ done |
 | 5. Polish (share links, IV checker, mobile) | ✅ done |
-| 6. Pokémon images | 🔎 researched, choosing an approach |
+| 6. Pokémon images | ✅ done |
 
 ## Features
 
@@ -37,6 +37,7 @@ up: Pokémon images on the team cards. See [PLAN.md](PLAN.md) for the design and
   product as a % of rank 1, and the level and CP it reaches under the cap
 - **Copy link** shares the exact view (league, style, picks, selected team), e.g.
   `…/PokemonGoPvpHelper/#l=great&s=abc&p=medicham&t=2`
+- Pokémon GO icons for every ranked Pokémon (correct regional and other forms; shadows glow purple)
 - Remembers your league, style, picks and entered IVs; light and dark theme; works on phones
 
 ## Running locally
@@ -78,12 +79,30 @@ python3 scripts/update_data.py
 
 The files are `.js` rather than `.json` so the page still works when opened straight from disk.
 
+Pokémon icons live in `img/pokemon/` (128 px WebP, ~4 MB for ~830 icons), copied from the game's
+assets as mined by [PokeMiners](https://github.com/PokeMiners/pogo_assets). The same weekly Action
+fetches icons for newly ranked Pokémon and re-fetches only icons that changed upstream. To run it
+locally (needs git and Pillow):
+
+```sh
+pip install pillow
+python3 scripts/update_images.py
+```
+
+Forms are matched by name (Marowak (Alolan) → `pm105.fALOLA`); the few that don't follow the
+pattern are listed in `OVERRIDES` in the script. A Pokémon with no match shows without an image,
+never with a wrong one.
+
 ## Deploying
 
 GitHub Pages: **Settings → Pages → Build and deployment → Deploy from a branch**, branch `main`,
 folder `/ (root)`.
 
 ## Credits
+
+Pokémon images are Pokémon GO assets, © Niantic and The Pokémon Company, obtained via
+[PokeMiners/pogo_assets](https://github.com/PokeMiners/pogo_assets); used here for a
+non-commercial fan tool and removable on request.
 
 Pokémon data and rankings come from [PvPoke](https://pvpoke.com)
 ([source](https://github.com/pvpoke/pvpoke), MIT License, © 2019 pvpoke). Pokémon and Pokémon GO

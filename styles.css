@@ -141,6 +141,10 @@ h3 { font-size: 1rem; margin: 0; }
 }
 .combo-list li.active, .combo-list li:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .combo-list li.empty { color: var(--muted); cursor: default; background: none; }
+.poke { flex-shrink: 0; object-fit: contain; }
+.poke.shadow { filter: drop-shadow(0 0 3px #8a3fd1) drop-shadow(0 0 1px #8a3fd1); }
+
+.opt-name .poke { width: 28px; height: 28px; vertical-align: middle; margin-right: 6px; }
 .opt-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .opt-meta { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .opt-meta small { color: var(--muted); }
@@ -200,6 +204,9 @@ h3 { font-size: 1rem; margin: 0; }
 }
 .team-option[aria-pressed="true"] .team-rank { background: var(--accent); color: var(--accent-text); }
 .team-names { flex: 1; min-width: 0; }
+.team-icons { display: flex; flex-shrink: 0; }
+.team-icons .poke { width: 32px; height: 32px; }
+.team-icons .poke + .poke { margin-left: -6px; }
 .team-score { flex-shrink: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 .results-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .results-head .chip { flex-shrink: 0; }
@@ -207,6 +214,9 @@ h3 { font-size: 1rem; margin: 0; }
 
 .members { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
 .member { border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-width: 0; }
+.member-head { display: flex; gap: 10px; align-items: center; }
+.member-head .poke { width: 64px; height: 64px; }
+.member-head > div { min-width: 0; }
 .member .role { margin: 0; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
 .member .types { margin: 4px 0 8px; display: flex; gap: 4px; flex-wrap: wrap; }
 .member dl { margin: 0; font-size: 0.875rem; }
@@ -233,7 +243,11 @@ h3 { font-size: 1rem; margin: 0; }
 
 .report { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .report .hint { margin: 2px 0 8px; }
-.threats { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 0.875rem; }
+.threats { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 0.875rem; }
+.threats li > * { vertical-align: middle; }
+.threats li { display: list-item; }
+.threats li .poke { width: 32px; height: 32px; float: left; margin-right: 8px; }
+.threats li > div { overflow: hidden; }
 .threats small { color: var(--muted); }
 .threat-name { font-weight: 600; }
 .verdict { color: var(--text); }
@@ -247,6 +261,7 @@ h3 { font-size: 1rem; margin: 0; }
 
 @media (max-width: 520px) {
   .picks { grid-template-columns: 1fr; }
+  .team-icons .poke { width: 28px; height: 28px; }
 }
 
 .site-footer { color: var(--muted); font-size: 0.8125rem; padding-bottom: 24px; }

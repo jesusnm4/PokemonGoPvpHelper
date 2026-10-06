@@ -46,6 +46,13 @@
     });
   };
 
+  // Resolves to { speciesId: image stem } for img/pokemon/<stem>.webp. Images are decoration, so a
+  // missing or broken data/images.js resolves to an empty map instead of failing the page.
+  PvpData.images = function () {
+    return loadScript('images', 'data/images.js').then(function (raw) { return raw.map || {}; },
+      function () { return {}; });
+  };
+
   // league: 'great' | 'ultra' | 'master'. Resolves to the ranked list, best first.
   PvpData.rankings = function (league) {
     var key = 'rankings-' + league;

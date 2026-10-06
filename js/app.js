@@ -13,6 +13,7 @@
 
   var state = load();
   var contexts = {};   // league -> Engine context, built once per league
+  var images = {};     // species id -> image stem (data/images.js)
   var teams = [];      // current suggestions (engine teams)
   var described = [];  // Engine.describeTeam() of each, for the detail view
   var runId = 0;       // ignores results from a superseded search
@@ -110,6 +111,16 @@
     return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   }
 
+  // Pokémon GO icon for a species id, or '' when there is none. Decorative: the name is always
+  // next to it, so alt is empty. Shadow forms share the normal icon and get a purple glow.
+  function icon(id, size) {
+    var stem = images[id];
+    if (!stem) return '';
+    var shadow = /_shadow$/.test(id) ? ' shadow' : '';
+    return '<img class="poke' + shadow + '" src="img/pokemon/' + encodeURIComponent(stem) + '.webp" alt="" width="' + size +
+      '" height="' + size + '" loading="lazy" decoding="async">';
+  }
+
   function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function typeChips(types) {
@@ -128,7 +139,8 @@
   }
 
   function contextFor(league) {
-    return Promise.all([window.PvpData.gamemaster(), window.PvpData.rankings(league)]).then(function (data) {
+    return Promise.all([window.PvpData.gamemaster(), window.PvpData.rankings(league), window.PvpData.images()]).then(function (data) {
+      images = data[2];
       if (!contexts[league]) contexts[league] = window.Engine.createContext(data[0], data[1], league);
       return contexts[league];
     });
@@ -187,7 +199,7 @@
         list.innerHTML = matches.map(function (e, i) {
           return '<li role="option" id="pick-' + slot + '-opt-' + i + '" data-index="' + i + '"' +
             (i === active ? ' aria-selected="true" class="active"' : '') + '>' +
-            '<span class="opt-name">' + escapeHtml(e.pokemon.name) + '</span>' +
+            '<span class="opt-name">' + icon(e.id, 28) + escapeHtml(e.pokemon.name) + '</span>' +
             '<span class="opt-meta">' + typeChips(e.pokemon.types) +
             ' <small>#' + (ctx.ranked.indexOf(e) + 1) + '</small></span></li>';
         }).join('');
@@ -362,6 +374,7 @@
     var list = described.map(function (d, i) {
       return '<li><button type="button" class="team-option" data-team="' + i + '" aria-pressed="' + (i === state.selected) + '">' +
         '<span class="team-rank">' + (i + 1) + '</span>' +
+        '<span class="team-icons">' + d.members.map(function (m) { return icon(m.id, 32); }).join('') + '</span>' +
         '<span class="team-names">' + d.members.map(function (m) { return escapeHtml(m.name); }).join(' · ') + '</span>' +
         '<span class="team-score" title="Team score out of 100">' + d.displayScore + '</span></button></li>';
     }).join('');
@@ -413,9 +426,11 @@
           escapeHtml(mv.name) + (mv.elite ? ' <abbr class="elite" title="Needs an Elite TM or a Community Day">Elite</abbr>' : '') + '</li>';
       }
       return '<article class="member">' +
+        '<div class="member-head">' + icon(m.id, 64) + '<div>' +
         '<p class="role">' + ROLE_NAMES[m.role] + '</p>' +
         '<h3>' + escapeHtml(m.name) + '</h3>' +
         '<p class="types">' + typeChips(m.types) + '</p>' +
+        '</div></div>' +
         '<dl>' +
         '<dt>Fast move</dt><dd><ul class="moves">' + move(fast) + '</ul></dd>' +
         '<dt>Charged moves</dt><dd><ul class="moves">' + charged.map(move).join('') + '</ul></dd>' +
@@ -426,9 +441,9 @@
 
     function threatList(items, strong) {
       return '<ol class="threats">' + items.map(function (t) {
-        return '<li><span class="threat-name">' + escapeHtml(t.name) + '</span> ' + typeChips(t.types) +
+        return '<li>' + icon(t.id, 32) + '<div><span class="threat-name">' + escapeHtml(t.name) + '</span> ' + typeChips(t.types) +
           '<br><small>' + (strong ? escapeHtml(t.answer) + ': ' : 'Best answer ' + escapeHtml(t.answer) + ': ') +
-          '<span class="verdict" title="Battle rating ' + t.rating + ' (500 is even)">' + verdict(t.rating) + '</span></small></li>';
+          '<span class="verdict" title="Battle rating ' + t.rating + ' (500 is even)">' + verdict(t.rating) + '</span></small></div></li>';
       }).join('') + '</ol>';
     }
 

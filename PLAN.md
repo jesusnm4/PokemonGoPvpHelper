@@ -110,7 +110,9 @@ tests.html     runs js/engine.test.js in the browser (scripts/run-tests.js runs 
 5. **Polish:** shareable URL for a team (hash `#l=<league>&s=<style>&p=<id>,<id>&t=<team>`), a
    "check my IVs" input on each team card (rank among all spreads, % of rank-1 stat product, level
    and CP), scroll-to-results and larger tap targets on phones. ✅
-6. **Pokémon images on team cards:** researched, waiting on a decision (see below).
+6. **Pokémon images:** Pokémon GO icons copied into `img/pokemon/` (trimmed, 128 px WebP) by
+   `scripts/update_images.py`, refreshed by the weekly Action; shown in team cards, the team list,
+   search results and threat lists, with a purple glow for shadows. ✅
 7. **Later (optional):** closer simulator accuracy (chance buffs, Aegislash, Morpeko, smarter
    shielding), and limited-format cups.
 
@@ -127,6 +129,8 @@ within are Copyright The Pokémon Company"; PokeMiners says its content "is the 
 Pokemon Company and Niantic" and the repo is "for educational use only". Fan tools commonly show
 these images, but it is tolerated use, not permission, and could draw a takedown request (if so,
 we remove the images; nothing else depends on them).
+
+**Decision:** copy the icons into this repo (first option below).
 
 **Hosting options (PokeMiners):**
 - **Copy the ~560 icons we need into this repo, downscaled**, refreshed by the weekly data Action.

@@ -29,18 +29,24 @@ jobs:
       - name: Download and trim
         run: python3 scripts/update_data.py
 
+      # Icons for newly ranked Pokémon or changed upstream icons; unchanged ones are not re-downloaded.
+      - name: Update Pokémon images
+        run: |
+          pip install --quiet pillow
+          python3 scripts/update_images.py
+
       # A PvPoke change that breaks the engine must not reach the live site.
       - name: Engine tests against the new data
         run: node scripts/run-tests.js
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- data; then
+          if [ -z "$(git status --porcelain -- data img)" ]; then
             echo "Data unchanged."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
+          git add data img
           git commit -m "Update PvPoke data snapshot"
           git push
