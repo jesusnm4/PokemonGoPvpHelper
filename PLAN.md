@@ -79,6 +79,8 @@ For each team member:
 - recommended IVs: rank-1 stat product IVs, level, and CP for the league
 
 For the team:
+- a team score out of 100 (`scoreTeam` scaled by its maximum, so it follows the ranking order)
+- how many of the top 100 threats it has a winning answer to
 - top 3 strengths: the top-30 meta threats the team handles best, and which member answers each
 - top 3 weaknesses: the top-30 meta threats it handles worst, plus any type that hits two or more
   members super-effectively
@@ -104,7 +106,7 @@ tests.html     runs js/engine.test.js in the browser (scripts/run-tests.js runs 
 3. **Core engine:** type chart, CP/IV math, battle simulator, team scoring, team styles, with
    tests and a CI workflow that runs them. ✅
 4. **UI:** Pokémon search with autocomplete (shadow forms included), "suggest 2" and "suggest 1"
-   modes, team cards, strengths and weaknesses.
+   modes, team cards, strengths and weaknesses. ✅
 5. **Polish:** mobile layout, shareable URL for a team, a "check my IVs" input that compares your
    Pokémon's IVs against rank 1.
 6. **Later (optional):** closer simulator accuracy (chance buffs, Aegislash, smarter shielding),

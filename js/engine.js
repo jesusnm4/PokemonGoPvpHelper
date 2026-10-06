@@ -470,6 +470,14 @@
     return cover / ctx.totalWeight + 0.2 * backup / ctx.totalWeight - penalty + 0.1 * quality;
   }
 
+  // scoreTeam's best possible value (full coverage, full backup, no penalty, perfect members).
+  var MAX_TEAM_SCORE = 1.3;
+
+  // A team score on a 0-100 scale for display; same order as scoreTeam.
+  function displayScore(score) {
+    return Math.max(0, Math.round(score / MAX_TEAM_SCORE * 100));
+  }
+
   // Attacking types that are super-effective against two or more of the given Pokémon.
   function sharedWeaknesses(pokemonList) {
     var out = [];
@@ -554,6 +562,9 @@
     });
 
     var rows = team.members.map(function (e) { return row(ctx, e.id); });
+    var beats = ctx.threats.filter(function (t, i) {
+      return rows.some(function (rw) { return rw[i] > 500; });
+    }).length;
     var report = ctx.threats.slice(0, REPORT_THREATS).map(function (t, i) {
       var bestIdx = 0;
       rows.forEach(function (rw, k) { if (rw[i] > rows[bestIdx][i]) bestIdx = k; });
@@ -567,6 +578,10 @@
 
     return {
       score: team.score,
+      displayScore: displayScore(team.score),
+      // How many of the league's top threats (all THREAT_COUNT) the team has a winning answer to.
+      beats: beats,
+      threatCount: ctx.threats.length,
       members: members,
       strengths: strengths,
       weaknesses: weaknesses,

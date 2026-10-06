@@ -35,21 +35,42 @@
       <fieldset>
         <legend>Team style</legend>
         <div class="segmented">
-          <label title="Three different typings and roles"><input type="radio" name="style" value="abc"> ABC <small>balanced</small></label>
-          <label title="Safe swap and closer share a type"><input type="radio" name="style" value="abb"> ABB</label>
-          <label title="Lead and closer share a type"><input type="radio" name="style" value="aba"> ABA</label>
-          <label title="No structural constraint"><input type="radio" name="style" value="any"> Any</label>
+          <label title="No two members share a type"><input type="radio" name="style" value="abc"> ABC <small>balanced</small></label>
+          <label title="Safe swap and closer share a type; the lead covers what beats them"><input type="radio" name="style" value="abb"> ABB</label>
+          <label title="Lead and closer share a type; the safe swap is different"><input type="radio" name="style" value="aba"> ABA</label>
+          <label title="No typing rule, best score wins"><input type="radio" name="style" value="any"> Any</label>
         </div>
       </fieldset>
 
       <fieldset>
         <legend>Your Pokémon</legend>
-        <p class="placeholder">Pokémon search arrives in milestone 4.</p>
+        <p class="hint">Pick one and get two partners, or pick two and get the best third.</p>
+        <div class="picks">
+          <div class="combo" data-slot="0">
+            <label for="pick-0">First Pokémon</label>
+            <div class="combo-box">
+              <input id="pick-0" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="pick-0-list" autocomplete="off" spellcheck="false" placeholder="Search, e.g. Medicham">
+              <button type="button" class="clear" data-action="clear" aria-label="Clear first Pokémon" hidden>×</button>
+            </div>
+            <ul class="combo-list" id="pick-0-list" role="listbox" aria-label="Matching Pokémon" hidden></ul>
+          </div>
+          <div class="combo" data-slot="1">
+            <label for="pick-1">Second Pokémon <small>(optional)</small></label>
+            <div class="combo-box">
+              <input id="pick-1" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="pick-1-list" autocomplete="off" spellcheck="false" placeholder="Search, e.g. Azumarill">
+              <button type="button" class="clear" data-action="clear" aria-label="Clear second Pokémon" hidden>×</button>
+            </div>
+            <ul class="combo-list" id="pick-1-list" role="listbox" aria-label="Matching Pokémon" hidden></ul>
+          </div>
+        </div>
+        <div class="quick" id="quick-picks"></div>
       </fieldset>
     </section>
 
-    <section class="panel" id="results">
-      <p class="placeholder">Suggested teams will appear here.</p>
+    <section class="panel" id="results" aria-live="polite">
+      <p class="placeholder">Loading Pokémon data…</p>
     </section>
   </main>
 
@@ -59,6 +80,7 @@
   </footer>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

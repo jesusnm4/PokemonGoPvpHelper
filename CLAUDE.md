@@ -26,6 +26,10 @@ milestones live in `PLAN.md`.
   after, and keep the figure in `PLAN.md` and the README current.
 - Engine functions take the gamemaster and rankings as arguments; `Engine.createContext` builds a
   league context whose matchup rows are cached, so reuse a context across searches.
+- `app.js` builds HTML strings: every value from data goes through `escapeHtml`. Results render
+  from `Engine.describeTeam`; keep display wording honest (a "weakness" can still be a win).
+- UI changes: check the page in headless Chromium (`/opt/node22/lib/node_modules/playwright`) at
+  desktop and 390px widths, light and dark, over http and `file://`, with no console errors.
 - Wrap all `localStorage` access in try/catch, and re-validate persisted fields in `load()`.
 - Keep the README's status table and `PLAN.md` milestones current with each milestone. The user
   asked for the README to be kept up to date as the project grows.

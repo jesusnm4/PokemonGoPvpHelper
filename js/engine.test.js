@@ -223,6 +223,9 @@
       ok(league + ': every member has a fast and a charged move', d.members.every(function (m) { return m.moves.length >= 2; }));
       eq(league + ': three strengths and three weaknesses', [d.strengths.length, d.weaknesses.length], [3, 3]);
       ok(league + ': strengths rate higher than weaknesses', d.strengths[2].rating >= d.weaknesses[2].rating);
+      ok(league + ': display score is 0-100', d.displayScore >= 0 && d.displayScore <= 100, d.displayScore);
+      ok(league + ': beats counts winning answers among the 100 threats', d.threatCount === 100 &&
+        d.beats <= 100 && (d.weaknesses[0].rating > 500 || d.beats < 100), d.beats + '/' + d.threatCount);
     });
   });
 

@@ -9,24 +9,30 @@ current meta.
 
 ## Status
 
-🚧 Early development. The team-building engine works and is tested; the page does not use it yet
-(that's the next milestone). See [PLAN.md](PLAN.md) for the design and milestones.
+Live at **https://jesusnm4.github.io/PokemonGoPvpHelper/**. Fully usable: pick a league, a team
+style and one or two Pokémon to get suggested teams. Polish (shareable links, an IV checker) is
+next. See [PLAN.md](PLAN.md) for the design and milestones.
 
 | Milestone | State |
 | --- | --- |
 | 1. Scaffold | ✅ done |
 | 2. Data pipeline (PvPoke snapshot) | ✅ done |
 | 3. Core engine | ✅ done |
-| 4. UI | ⏳ next |
-| 5. Polish | — |
+| 4. UI | ✅ done |
+| 5. Polish | ⏳ next |
 
-## Features (planned)
+## Features
 
 - Great (1500), Ultra (2500) and Master League
 - Team styles: ABC (balanced), ABB, ABA, or any
-- "Suggest 2" from one Pokémon, or "suggest 1" from two
-- Per Pokémon: recommended fast and charged moves, rank-1 IVs with level and CP, and role
-- Per team: top 3 strengths and top 3 weaknesses against the top-ranked meta
+- Pokémon search by name or nickname (shadow forms included), plus one-tap popular picks
+- Pick one Pokémon to get two partners, or two to get the best third; the top 5 teams are listed
+  with a team score out of 100
+- Per Pokémon: role (lead, safe swap, closer), recommended fast and charged moves (Elite TM moves
+  marked), rank-1 IVs with level and CP
+- Per team: how many of the league's top 100 it has a winning answer to, top 3 strengths, top 3
+  weaknesses, and any type that hits two members super-effectively
+- Remembers your league, style and picks; light and dark theme; works on phones
 
 ## Running locally
 
