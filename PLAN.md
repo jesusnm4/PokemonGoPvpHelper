@@ -107,7 +107,30 @@ tests.html     runs js/engine.test.js in the browser (scripts/run-tests.js runs 
    tests and a CI workflow that runs them. ✅
 4. **UI:** Pokémon search with autocomplete (shadow forms included), "suggest 2" and "suggest 1"
    modes, team cards, strengths and weaknesses. ✅
-5. **Polish:** mobile layout, shareable URL for a team, a "check my IVs" input that compares your
-   Pokémon's IVs against rank 1.
-6. **Later (optional):** closer simulator accuracy (chance buffs, Aegislash, smarter shielding),
-   and limited-format cups.
+5. **Polish:** shareable URL for a team (hash `#l=<league>&s=<style>&p=<id>,<id>&t=<team>`), a
+   "check my IVs" input on each team card (rank among all spreads, % of rank-1 stat product, level
+   and CP), scroll-to-results and larger tap targets on phones. ✅
+6. **Pokémon images on team cards:** researched, waiting on a decision (see below).
+7. **Later (optional):** closer simulator accuracy (chance buffs, Aegislash, Morpeko, smarter
+   shielding), and limited-format cups.
+
+## Research: Pokémon images
+
+| Source | What it is | Fit |
+| --- | --- | --- |
+| [PokeMiners/pogo_assets](https://github.com/PokeMiners/pogo_assets) | Icons mined from Pokémon GO itself, 256×256 PNG (~25–55 KB), one file per form (`pm105.fALOLA.icon.png`), shinies as `.s` | Best match: the in-game look, and a simple naming rule maps 547 of the 556 Pokémon in any league's top 300; the other 9 (Mimikyu, Florges, Kyurem, …) need a short override list. No separate shadow images (we'd add a badge). Served with `Access-Control-Allow-Origin: *`. |
+| [PokeAPI/sprites](https://github.com/PokeAPI/sprites) | Main-series HOME renders and official artwork, 475–512 px | Good art, but forms use PokeAPI's own numeric ids (e.g. `10115`), so it needs a full mapping table. |
+| [smogon/sprites](https://github.com/smogon/sprites) (Pokémon Showdown) | Main-series battle sprites | No clear policy on use by other sites. |
+
+**Rights:** none of these grants a licence to the artwork. PokeAPI's repo says "All image contents
+within are Copyright The Pokémon Company"; PokeMiners says its content "is the property of The
+Pokemon Company and Niantic" and the repo is "for educational use only". Fan tools commonly show
+these images, but it is tolerated use, not permission, and could draw a takedown request (if so,
+we remove the images; nothing else depends on them).
+
+**Hosting options (PokeMiners):**
+- **Copy the ~560 icons we need into this repo, downscaled**, refreshed by the weekly data Action.
+  Keeps the "no third-party URLs at runtime" rule, works offline and over `file://`, a few MB.
+- **Hotlink `raw.githubusercontent.com`.** Zero setup, but GitHub discourages using raw URLs as a
+  CDN (5-minute cache, rate limits), and a repo reorganisation would break images.
+- jsDelivr is not an option: it refuses GitHub repos over 50 MB, and pogo_assets is far larger.

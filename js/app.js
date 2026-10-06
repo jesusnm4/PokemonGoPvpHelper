@@ -1,6 +1,7 @@
 // Owns state, form wiring and rendering. Team math lives in js/engine.js, data loading in js/data.js.
 (function () {
   var KEY = 'pvphelper-state-v1';
+  var IV_KEY = 'pvphelper-ivs-v1';   // { speciesId: [atk, def, hp] } the viewer entered
   var LEAGUES = ['great', 'ultra', 'master'];
   var STYLES = ['abc', 'abb', 'aba', 'any'];
   var LEAGUE_NAMES = { great: 'Great League', ultra: 'Ultra League', master: 'Master League' };
@@ -8,33 +9,93 @@
   var ROLE_NAMES = { lead: 'Lead', swap: 'Safe swap', closer: 'Closer' };
   var MAX_MATCHES = 8;
   var QUICK_PICKS = 6;
+  var PICK_ID = /^[a-z0-9_]{1,64}$/;   // shape of a PvPoke species id
 
   var state = load();
   var contexts = {};   // league -> Engine context, built once per league
   var teams = [];      // current suggestions (engine teams)
   var described = [];  // Engine.describeTeam() of each, for the detail view
   var runId = 0;       // ignores results from a superseded search
+  var revealResults = false;  // set by a user pick: scroll new results into view if off-screen
 
-  // ---- Persistence ----
+  // ---- Persistence: localStorage remembers the last view; the URL hash makes it shareable ----
+  // Hash format: #l=great&s=abc&p=medicham,azumarill&t=2 (t is the 1-based selected team).
+
+  // Copies the recognised fields of `saved` onto `s`. Pick ids are only checked for shape here;
+  // whether they are ranked in the league is checked once rankings load (see validatePicks).
+  function applySaved(s, saved) {
+    if (LEAGUES.indexOf(saved.league) !== -1) s.league = saved.league;
+    if (STYLES.indexOf(saved.style) !== -1) s.style = saved.style;
+    if (Array.isArray(saved.picks)) {
+      s.picks = [0, 1].map(function (i) {
+        var id = saved.picks[i];
+        return typeof id === 'string' && PICK_ID.test(id) ? id : null;
+      });
+      if (!s.picks[0] && s.picks[1]) s.picks = [s.picks[1], null];
+    }
+    if (typeof saved.selected === 'number' && saved.selected >= 0 && saved.selected < 5) s.selected = Math.floor(saved.selected);
+    return s;
+  }
+
+  function readHash() {
+    var params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (!params.get('p') && !params.get('l')) return null;
+    return {
+      league: params.get('l'),
+      style: params.get('s'),
+      picks: (params.get('p') || '').split(',').filter(Boolean),
+      selected: Number(params.get('t')) - 1
+    };
+  }
+
+  function hashFor(st) {
+    var picks = st.picks.filter(Boolean);
+    if (!picks.length) return '';
+    return '#l=' + st.league + '&s=' + st.style + '&p=' + picks.map(encodeURIComponent).join(',') +
+      (st.selected ? '&t=' + (st.selected + 1) : '');
+  }
 
   function load() {
     var s = { league: 'great', style: 'abc', picks: [null, null], selected: 0 };
     try {
-      var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
-      if (LEAGUES.indexOf(saved.league) !== -1) s.league = saved.league;
-      if (STYLES.indexOf(saved.style) !== -1) s.style = saved.style;
-      // Pick ids are checked against the league's rankings once they load (see validatePicks).
-      if (Array.isArray(saved.picks)) {
-        s.picks = [0, 1].map(function (i) { return typeof saved.picks[i] === 'string' ? saved.picks[i] : null; });
-      }
+      applySaved(s, JSON.parse(localStorage.getItem(KEY) || '{}'));
     } catch (e) { /* private mode or bad JSON: keep defaults */ }
+    var shared = readHash();
+    // A shared link replaces the remembered view entirely, including empty slots.
+    if (shared) applySaved(s, { league: shared.league, style: shared.style, picks: shared.picks.concat([null, null]), selected: shared.selected });
     return s;
   }
 
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ league: state.league, style: state.style, picks: state.picks }));
+      localStorage.setItem(KEY, JSON.stringify({ league: state.league, style: state.style, picks: state.picks, selected: state.selected }));
     } catch (e) { /* private mode */ }
+    var hash = hashFor(state);
+    if (hash !== location.hash) {
+      history.replaceState(null, '', hash || location.pathname + location.search);
+    }
+  }
+
+  // IVs the viewer typed into "Check your IVs", remembered per species on this device only.
+  function loadIvs() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(IV_KEY) || '{}');
+      return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveIvs(id, ivs) {
+    var all = loadIvs();
+    if (ivs) all[id] = ivs; else delete all[id];
+    try { localStorage.setItem(IV_KEY, JSON.stringify(all)); } catch (e) { /* private mode */ }
+  }
+
+  function savedIvs(id) {
+    var v = loadIvs()[id];
+    var valid = Array.isArray(v) && v.length === 3 && v.every(function (n) {
+      return typeof n === 'number' && n === Math.floor(n) && n >= 0 && n <= 15;
+    });
+    return valid ? v : null;
   }
 
   // ---- Helpers ----
@@ -209,6 +270,7 @@
     save();
     syncCombos();
     renderQuickPicks();
+    revealResults = !!id;
     runSearch();
   }
 
@@ -306,11 +368,41 @@
 
     resultsEl().innerHTML =
       (notice ? '<p class="notice">' + escapeHtml(notice) + '</p>' : '') +
-      '<h2>' + heading + '</h2>' +
+      '<div class="results-head"><h2>' + heading + '</h2>' +
+      '<button type="button" class="chip" data-action="share">Copy link</button></div>' +
       '<p class="hint">' + LEAGUE_NAMES[state.league] + ', ' + STYLE_NAMES[state.style] +
       ' style. Team score (out of 100) rates how well the team covers the league’s top 100 Pokémon.</p>' +
       '<ol class="team-list">' + list + '</ol>' +
       '<div id="team-detail">' + renderDetail(described[state.selected]) + '</div>';
+    // On a phone the results start below the fold; after a pick, bring them into view.
+    if (revealResults) {
+      revealResults = false;
+      var top = resultsEl().getBoundingClientRect().top;
+      if (top > window.innerHeight * 0.6) resultsEl().scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function ivChecker(m) {
+    var saved = savedIvs(m.id);
+    var labels = ['Attack', 'Defense', 'HP'];
+    var inputs = labels.map(function (label, i) {
+      return '<label><span>' + label.slice(0, 3) + '</span><input type="number" inputmode="numeric" min="0" max="15" step="1" ' +
+        'data-iv="' + i + '" aria-label="' + label + ' IV" value="' + (saved ? saved[i] : '') + '"></label>';
+    }).join('');
+    return '<details class="ivcheck" data-id="' + escapeHtml(m.id) + '"' + (saved ? ' open' : '') + '>' +
+      '<summary>Check your IVs</summary>' +
+      '<div class="iv-inputs">' + inputs + '</div>' +
+      '<p class="iv-result" aria-live="polite">' + ivResult(m.id, saved) + '</p></details>';
+  }
+
+  // Text for the IV checker, or a prompt when the spread is incomplete.
+  function ivResult(id, ivs) {
+    if (!ivs) return 'Enter Attack, Defense and HP (0–15).';
+    var ctx = contexts[state.league];
+    var r = window.Engine.ivCheck(ctx.byId[id].pokemon, state.league, ivs);
+    if (!r) return 'These IVs can’t get under the ' + LEAGUE_NAMES[state.league] + ' CP cap.';
+    return '<strong>Rank ' + r.rank + '</strong> of ' + r.of + ' · ' + r.percent.toFixed(1) + '% of rank 1' +
+      '<br><small>Level ' + r.level + ' · CP ' + r.cp + '</small>';
   }
 
   function renderDetail(d) {
@@ -329,7 +421,7 @@
         '<dt>Charged moves</dt><dd><ul class="moves">' + charged.map(move).join('') + '</ul></dd>' +
         '<dt>Rank 1 IVs</dt><dd><span class="ivs" title="Attack / Defense / HP">' + m.ivs.atk + ' / ' + m.ivs.def + ' / ' + m.ivs.hp +
         '</span><br><small>Level ' + m.ivs.level + ' · CP ' + m.ivs.cp + '</small></dd>' +
-        '</dl></article>';
+        '</dl>' + ivChecker(m) + '</article>';
     }).join('');
 
     function threatList(items, strong) {
@@ -355,14 +447,47 @@
       '</div>';
   }
 
+  function copyLink(btn) {
+    save();
+    var url = location.href;
+    function done(text) {
+      btn.textContent = text;
+      setTimeout(function () { btn.textContent = 'Copy link'; }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { done('Link copied'); }, function () { window.prompt('Copy this link:', url); });
+    } else {
+      window.prompt('Copy this link:', url);
+    }
+  }
+
   resultsEl().addEventListener('click', function (ev) {
+    var share = ev.target.closest('button[data-action="share"]');
+    if (share) { copyLink(share); return; }
     var btn = ev.target.closest('button[data-team]');
     if (!btn || !described[Number(btn.dataset.team)]) return;
     state.selected = Number(btn.dataset.team);
+    save();
     Array.prototype.forEach.call(resultsEl().querySelectorAll('.team-option'), function (b) {
       b.setAttribute('aria-pressed', String(b === btn));
     });
     document.getElementById('team-detail').innerHTML = renderDetail(described[state.selected]);
+  });
+
+  resultsEl().addEventListener('input', function (ev) {
+    var input = ev.target.closest('input[data-iv]');
+    if (!input) return;
+    var box = input.closest('.ivcheck');
+    var values = Array.prototype.map.call(box.querySelectorAll('input[data-iv]'), function (el) {
+      return el.value === '' ? NaN : Number(el.value);
+    });
+    var valid = values.every(function (n) { return n === Math.floor(n) && n >= 0 && n <= 15; });
+    if (valid) saveIvs(box.dataset.id, values);
+    else if (values.every(isNaN)) saveIvs(box.dataset.id, null);
+    // Only the result line is rewritten, so the input keeps focus and caret.
+    box.querySelector('.iv-result').innerHTML = valid ? ivResult(box.dataset.id, values)
+      : values.some(function (n) { return !isNaN(n) && (n !== Math.floor(n) || n < 0 || n > 15); })
+        ? 'Each IV is a whole number from 0 to 15.' : ivResult(box.dataset.id, null);
   });
 
   // ---- Form wiring ----
@@ -372,6 +497,26 @@
       document.getElementById('data-date').textContent = ', game data of ' + gm.timestamp.slice(0, 10);
     }).catch(function () { /* the results panel reports load errors */ });
   }
+
+  function syncRadios() {
+    ['league', 'style'].forEach(function (field) {
+      Array.prototype.forEach.call(document.querySelectorAll('input[name="' + field + '"]'), function (input) {
+        input.checked = input.value === state[field];
+      });
+    });
+  }
+
+  // A shared link pasted into an already open tab.
+  window.addEventListener('hashchange', function () {
+    var shared = readHash();
+    if (!shared || location.hash === hashFor(state)) return;
+    applySaved(state, { league: shared.league, style: shared.style, picks: shared.picks.concat([null, null]), selected: shared.selected });
+    save();
+    syncRadios();
+    syncCombos();
+    renderQuickPicks();
+    runSearch();
+  });
 
   function bindRadios(name, field, onChange) {
     var inputs = document.querySelectorAll('input[name="' + name + '"]');

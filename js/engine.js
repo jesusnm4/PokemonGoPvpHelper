@@ -151,6 +151,38 @@
     return out;
   }
 
+  var rankingCache = {};
+
+  // How a specific IV spread compares in a league: its rank among every obtainable spread (1 is
+  // best), its stat product as a percentage of rank 1's, and the level and CP it reaches under
+  // the cap. Spreads below the Pokémon's IV floor are still rated, ranked against the obtainable
+  // ones. Returns null if this spread cannot get under the cap at all.
+  function ivCheck(pokemon, league, ivs) {
+    if (!Array.isArray(ivs) || ivs.length !== 3 || ivs.some(function (v) {
+      return typeof v !== 'number' || v !== Math.floor(v) || v < 0 || v > 15;
+    })) {
+      throw new Error('IVs must be three whole numbers from 0 to 15');
+    }
+    var key = pokemon.id + '@' + league;
+    if (!rankingCache[key]) rankingCache[key] = ivRanking(pokemon, LEAGUES[league]);
+    var ranking = rankingCache[key];
+    var minIndex = pokemon.levelFloor ? Math.round((pokemon.levelFloor - 1) * 2) : 0;
+    var idx = maxLevelIndex(pokemon.stats, ivs, LEAGUES[league], minIndex);
+    if (idx < 0 || !ranking.length) return null;
+    var cpm = CPM[idx];
+    var st = statsAt(pokemon.stats, ivs, cpm);
+    var product = st.atk * st.def * st.hp;
+    var better = 0;
+    while (better < ranking.length && ranking[better].statProduct > product + 1e-9) better++;
+    return {
+      rank: better + 1,
+      of: ranking.length,
+      percent: product / ranking[0].statProduct * 100,
+      level: idx / 2 + 1,
+      cp: cpFor(pokemon.stats, ivs, cpm)
+    };
+  }
+
   var rankOneCache = {};
 
   // The rank-1 spread for this Pokémon in a league, or null if it cannot fit under the cap.
@@ -600,6 +632,7 @@
     ivFloor: ivFloor,
     ivRanking: ivRanking,
     rankOne: rankOne,
+    ivCheck: ivCheck,
     makeBattler: makeBattler,
     damage: damage,
     simulate: simulate,

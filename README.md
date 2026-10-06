@@ -9,9 +9,9 @@ current meta.
 
 ## Status
 
-Live at **https://jesusnm4.github.io/PokemonGoPvpHelper/**. Fully usable: pick a league, a team
-style and one or two Pokémon to get suggested teams. Polish (shareable links, an IV checker) is
-next. See [PLAN.md](PLAN.md) for the design and milestones.
+Live at **https://jesusnm4.github.io/PokemonGoPvpHelper/**. Pick a league, a team style and one or
+two Pokémon to get suggested teams, share them as a link, and check your own Pokémon's IVs. Next
+up: Pokémon images on the team cards. See [PLAN.md](PLAN.md) for the design and milestones.
 
 | Milestone | State |
 | --- | --- |
@@ -19,7 +19,8 @@ next. See [PLAN.md](PLAN.md) for the design and milestones.
 | 2. Data pipeline (PvPoke snapshot) | ✅ done |
 | 3. Core engine | ✅ done |
 | 4. UI | ✅ done |
-| 5. Polish | ⏳ next |
+| 5. Polish (share links, IV checker, mobile) | ✅ done |
+| 6. Pokémon images | 🔎 researched, choosing an approach |
 
 ## Features
 
@@ -32,7 +33,11 @@ next. See [PLAN.md](PLAN.md) for the design and milestones.
   marked), rank-1 IVs with level and CP
 - Per team: how many of the league's top 100 it has a winning answer to, top 3 strengths, top 3
   weaknesses, and any type that hits two members super-effectively
-- Remembers your league, style and picks; light and dark theme; works on phones
+- **Check your IVs** on any team member: your spread's rank among all IV combinations, its stat
+  product as a % of rank 1, and the level and CP it reaches under the cap
+- **Copy link** shares the exact view (league, style, picks, selected team), e.g.
+  `…/PokemonGoPvpHelper/#l=great&s=abc&p=medicham&t=2`
+- Remembers your league, style, picks and entered IVs; light and dark theme; works on phones
 
 ## Running locally
 

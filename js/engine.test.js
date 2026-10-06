@@ -96,6 +96,18 @@
     var master = E.rankOne(mon('mewtwo', ['psychic'], [300, 182, 214]), 'master');
     eq('Master League rank 1 is hundo at level 50', [master.ivs, master.level, master.cp], [[15, 15, 15], 50, 4724]);
 
+    var check = E.ivCheck(altaria, 'great', [0, 14, 15]);
+    eq('IV check: rank 1 spread', [check.rank, check.of, Math.round(check.percent * 100) / 100, check.level], [1, 4096, 100, 29]);
+    var hundo = E.ivCheck(altaria, 'great', [15, 15, 15]);
+    ok('IV check: 15/15/15 ranks below rank 1', hundo.rank > 1 && hundo.percent < 100 && hundo.cp <= 1500, JSON.stringify(hundo));
+    eq('IV check: rank matches the full ranking', hundo.rank,
+      1 + ranking.filter(function (r) { return r.statProduct > ranking[hundo.rank - 1].statProduct + 1e-9; }).length);
+    var below = E.ivCheck(legendary, 'great', [0, 0, 0]);
+    ok('IV check: a spread below the IV floor is still rated', below && below.rank >= 1 && below.of === 15 * 15 * 15, JSON.stringify(below));
+    eq('IV check: Master League ranks at level 50', E.ivCheck(mon('mewtwo', ['psychic'], [300, 182, 214]), 'master', [15, 15, 15]).rank, 1);
+    throws('IV check: rejects out-of-range IVs', function () { E.ivCheck(altaria, 'great', [16, 0, 0]); });
+    throws('IV check: rejects fractional IVs', function () { E.ivCheck(altaria, 'great', [1.5, 0, 0]); });
+
     var tooBig = mon('big', ['normal'], [500, 500, 500], { levelFloor: 20 });
     eq('Pokémon that cannot fit the cap has no rank 1', E.rankOne(tooBig, 'great'), null);
   });
