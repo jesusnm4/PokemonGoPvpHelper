@@ -9,14 +9,14 @@ current meta.
 
 ## Status
 
-🚧 Early development. The page skeleton is in place, and suggestions are not wired up yet. See
-[PLAN.md](PLAN.md) for the design and milestones.
+🚧 Early development. The page loads the current PvPoke rankings for all three leagues; team
+suggestions are not wired up yet. See [PLAN.md](PLAN.md) for the design and milestones.
 
 | Milestone | State |
 | --- | --- |
 | 1. Scaffold | ✅ done |
-| 2. Data pipeline (PvPoke snapshot) | ⏳ next |
-| 3. Core engine | — |
+| 2. Data pipeline (PvPoke snapshot) | ✅ done |
+| 3. Core engine | ⏳ next |
 | 4. UI | — |
 | 5. Polish | — |
 
@@ -35,6 +35,19 @@ No build step and no dependencies. Open `index.html` directly, or serve the fold
 ```sh
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
+
+## Data
+
+`data/` holds a trimmed snapshot of PvPoke's game master and overall rankings for Great, Ultra and
+Master League. The **Update PvPoke data** GitHub Action refreshes it every Monday and commits only
+when something changed. To run it now: **Actions → Update PvPoke data → Run workflow**. To refresh
+locally (Python 3, no dependencies):
+
+```sh
+python3 scripts/update_data.py
+```
+
+The files are `.js` rather than `.json` so the page still works when opened straight from disk.
 
 ## Deploying
 

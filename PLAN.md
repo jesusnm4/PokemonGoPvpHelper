@@ -16,12 +16,20 @@ team gets its top 3 strengths and top 3 weaknesses against the current meta.
 
 | File | What we use |
 | --- | --- |
-| `src/data/gamemaster.min.json` | base stats, types, movepools, move data, shadow forms, rank-1 IVs per league (`defaultIVs.cp1500` = `[level, atk, def, hp]`) |
+| `src/data/gamemaster.min.json` | base stats, types, movepools, elite/legacy moves, move data, shadow forms |
 | `src/data/rankings/all/overall/rankings-{1500,2500,10000}.json` | overall score, recommended moveset, role sub-scores (lead, closer, switch, charger, attacker, consistency), top 5 matchups and counters |
 
-A scheduled GitHub Action (weekly, plus a manual trigger) downloads these, trims them to the fields
-we use, and commits the result to `data/`. The site reads only its own copy, so it never depends on
-a third-party site being up. PvPoke is credited in the README and the page footer.
+A scheduled GitHub Action (weekly, plus a manual trigger) runs `scripts/update_data.py`, which
+downloads these, trims them to the fields we use, and commits the result to `data/` (about 1.2 MB,
+~200 KB gzipped). The site reads only its own copy, so it never depends on a third-party site being
+up. PvPoke is credited in the README and the page footer.
+
+The snapshot is written as `.js` files that assign into `window.PvpData.raw`, loaded with script
+tags, because browsers block `fetch()` of local files under `file://`. Megas (not allowed in GO
+Battle League) and unreleased Pokémon are dropped.
+
+Rank-1 IVs are computed by the engine from base stats and the CP multiplier table, not taken from
+PvPoke's `defaultIVs`, which are not always the rank-1 spread.
 
 ## Engine
 
@@ -78,7 +86,7 @@ tests.html     runs js/engine.test.js in the browser
 
 1. **Scaffold:** page skeleton (league and style pickers, theme), README, this plan, Pages-ready
    layout. ✅
-2. **Data pipeline:** Action that snapshots and trims PvPoke data, plus attribution.
+2. **Data pipeline:** Action that snapshots and trims PvPoke data, plus attribution. ✅
 3. **Core engine:** type chart, CP/IV math, matchup estimate, team scoring, team styles, with tests.
 4. **UI:** Pokémon search with autocomplete (shadow forms included), "suggest 2" and "suggest 1"
    modes, team cards, strengths and weaknesses.

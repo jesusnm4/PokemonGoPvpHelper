@@ -1,4 +1,5 @@
 :root {
+  --error: #b42318;
   --bg: #f6f7f9;
   --surface: #ffffff;
   --text: #1b1f24;
@@ -9,6 +10,7 @@
 }
 
 :root[data-theme="dark"] {
+  --error: #f97066;
   --bg: #121418;
   --surface: #1c1f25;
   --text: #e8eaed;
@@ -91,5 +93,8 @@ select {
 }
 
 .placeholder { color: var(--muted); margin: 0; }
+.error { color: var(--error); margin: 0; }
+.top-list { margin: 8px 0 0; padding-left: 24px; }
+.top-list small { color: var(--muted); }
 
 .site-footer { color: var(--muted); font-size: 0.8125rem; padding-bottom: 24px; }
