@@ -25,7 +25,8 @@ two Pokémon to get suggested teams, share them as a link, and check your own Po
 ## Features
 
 - Great (1500), Ultra (2500) and Master League
-- Team styles: ABC (balanced), ABB, ABA, or any
+- Team styles: ABC (balanced, no shared types), ABB, ABA, or Best score (no typing rule; shared
+  types allowed if they score higher)
 - Pokémon search by name or nickname (shadow forms included), plus one-tap popular picks
 - Pick one Pokémon to get two partners, or two to get the best third; the top 5 teams are listed
   with a team score out of 100

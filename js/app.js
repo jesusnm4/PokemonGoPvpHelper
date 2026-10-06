@@ -5,7 +5,9 @@
   var LEAGUES = ['great', 'ultra', 'master'];
   var STYLES = ['abc', 'abb', 'aba', 'any'];
   var LEAGUE_NAMES = { great: 'Great League', ultra: 'Ultra League', master: 'Master League' };
-  var STYLE_NAMES = { abc: 'ABC', abb: 'ABB', aba: 'ABA', any: 'Any' };
+  // The 'any' value is kept (saved state and shared links use it); only the label changed.
+  var STYLE_NAMES = { abc: 'ABC', abb: 'ABB', aba: 'ABA', any: 'Best score' };
+  var STYLE_HINTS = { abc: 'ABC style', abb: 'ABB style', aba: 'ABA style', any: 'best score (no typing rule)' };
   var ROLE_NAMES = { lead: 'Lead', swap: 'Safe swap', closer: 'Closer' };
   var MAX_MATCHES = 8;
   var QUICK_PICKS = 6;
@@ -383,8 +385,8 @@
       (notice ? '<p class="notice">' + escapeHtml(notice) + '</p>' : '') +
       '<div class="results-head"><h2>' + heading + '</h2>' +
       '<button type="button" class="chip" data-action="share">Copy link</button></div>' +
-      '<p class="hint">' + LEAGUE_NAMES[state.league] + ', ' + STYLE_NAMES[state.style] +
-      ' style. Team score (out of 100) rates how well the team covers the league’s top 100 Pokémon.</p>' +
+      '<p class="hint">' + LEAGUE_NAMES[state.league] + ', ' + STYLE_HINTS[state.style] +
+      '. Team score (out of 100) rates how well the team covers the league’s top 100 Pokémon.</p>' +
       '<ol class="team-list">' + list + '</ol>' +
       '<div id="team-detail">' + renderDetail(described[state.selected]) + '</div>';
     // On a phone the results start below the fold; after a pick, bring them into view.

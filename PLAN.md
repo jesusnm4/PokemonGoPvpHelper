@@ -67,7 +67,8 @@ All in `js/engine.js`, pure and DOM-free.
    - **ABC (balanced):** no two members share a type. This is the default.
    - **ABB:** the safe swap and the closer share a type; the lead shares none with them.
    - **ABA:** the lead and the closer share a type; the safe swap shares none with them.
-   - **Any:** no structural constraint, best score wins.
+   - **Best score** (value `any`): no typing rule; the highest-scoring team wins even if members
+     share types. Same #1 team as ABC for most picks; differs when overlap scores higher.
 7. **Roles:** each team is ordered lead / safe swap / closer by PvPoke's role sub-scores, choosing
    the order that fits the style with the highest combined role score.
 
