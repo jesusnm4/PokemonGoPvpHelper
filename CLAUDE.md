@@ -37,7 +37,8 @@ milestones live in `PLAN.md`.
 - State lives in two places: `localStorage` (`pvphelper-state-v1` for the view,
   `pvphelper-ivs-v1` for IVs the viewer typed, per species) and the URL hash
   (`#l=&s=&p=&t=`, see `hashFor`/`readHash` in `app.js`). A hash on load wins over saved state.
-  Any new persisted field goes through `applySaved` validation.
+  Any new persisted field goes through `applySaved` validation. Team style values are `abc`,
+  `pair`, `any`; retired values (`abb`, `aba`) are mapped in `STYLE_ALIASES` so old links work.
 - Wrap all `localStorage` access in try/catch, and re-validate persisted fields in `load()`.
 - Keep the README's status table and `PLAN.md` milestones current with each milestone. The user
   asked for the README to be kept up to date as the project grows.

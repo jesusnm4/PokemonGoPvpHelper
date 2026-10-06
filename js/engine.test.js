@@ -177,6 +177,21 @@
     eq('ABB: lead is the odd one out', abb && abb[0].id, 'grass');
     eq('ABB needs a shared type', E.assignRoles([water, grass, fire], 'abb'), null);
     ok('Any accepts anything', E.assignRoles([water, water2, grass], 'any') !== null);
+
+    var pair = E.assignRoles([water, water2, grass], 'pair');
+    ok('Shared type accepts an ABB or ABA order', pair && ['ABB', 'ABA'].indexOf(E.layoutOf(pair)) !== -1, pair && E.layoutOf(pair));
+    var best = ['abb', 'aba'].map(function (st) { return E.assignRoles([water, water2, grass], st); })
+      .sort(function (x, y) {
+        function roleScore(t) { return t[0].ranking.roles[0] + t[1].ranking.roles[2] + t[2].ranking.roles[1]; }
+        return roleScore(y) - roleScore(x);
+      })[0];
+    eq('Shared type keeps the better of the two orders', pair.map(function (e) { return e.id; }), best.map(function (e) { return e.id; }));
+    eq('Shared type rejects three distinct typings', E.assignRoles([water, grass, fire], 'pair'), null);
+    eq('Shared type rejects a type shared by all three', E.assignRoles([water, water2, entry('water3', ['water'], [1, 1, 1])], 'pair'), null);
+    eq('layout ABC', E.layoutOf([water, grass, fire]), 'ABC');
+    eq('layout ABA', E.layoutOf([water, grass, water2]), 'ABA');
+    eq('layout ABB', E.layoutOf([grass, water, water2]), 'ABB');
+    eq('layout AAB', E.layoutOf([water, water2, grass]), 'AAB');
   });
 
   test('shared weaknesses', function () {
@@ -221,6 +236,10 @@
         return dex[0] !== dex[1] && dex[0] !== dex[2] && dex[1] !== dex[2];
       }));
       ok(league + ': teams fit ABC', teams.every(function (t) { return E.assignRoles(t.members, 'abc') !== null; }));
+      var paired = E.suggest(ctx, [pick], 'pair', 5);
+      ok(league + ': shared-type teams are ABB or ABA', paired.length > 0 && paired.every(function (t) {
+        return ['ABB', 'ABA'].indexOf(E.describeTeam(ctx, t).layout) !== -1;
+      }), paired.map(function (t) { return E.layoutOf(t.members); }).join(' '));
       ok(league + ': best first', teams.every(function (t, i) { return i === 0 || teams[i - 1].score >= t.score; }));
 
       var two = E.suggest(ctx, [teams[0].members[0].id, teams[0].members[1].id], 'any', 3);

@@ -65,10 +65,16 @@ All in `js/engine.js`, pure and DOM-free.
 6. **Team style:** the common PvP structures, named by how the lead (A), safe swap (B) and
    closer slots overlap in typing:
    - **ABC (balanced):** no two members share a type. This is the default.
-   - **ABB:** the safe swap and the closer share a type; the lead shares none with them.
-   - **ABA:** the lead and the closer share a type; the safe swap shares none with them.
+   - **Shared type (ABB / ABA):** exactly two members share a type and the third shares none
+     with them. ABB (pair at safe swap and closer) and ABA (pair at lead and closer) used to be
+     separate options, but any three Pokémon that fit one fit the other in a different order, and
+     the team score ignores order, so they always produced the same five teams. They are now one
+     option; the role order with the best PvPoke role fit decides which layout a team gets. Old
+     links and saved settings with `abb`/`aba` map to it.
    - **Best score** (value `any`): no typing rule; the highest-scoring team wins even if members
      share types. Same #1 team as ABC for most picks; differs when overlap scores higher.
+
+   Every suggested team shows its layout (`Engine.layoutOf`: ABC, ABB, ABA, AAB, …).
 7. **Roles:** each team is ordered lead / safe swap / closer by PvPoke's role sub-scores, choosing
    the order that fits the style with the highest combined role score.
 

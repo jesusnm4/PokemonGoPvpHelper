@@ -3,11 +3,21 @@
   var KEY = 'pvphelper-state-v1';
   var IV_KEY = 'pvphelper-ivs-v1';   // { speciesId: [atk, def, hp] } the viewer entered
   var LEAGUES = ['great', 'ultra', 'master'];
-  var STYLES = ['abc', 'abb', 'aba', 'any'];
+  var STYLES = ['abc', 'pair', 'any'];
+  // Styles that were merged into another; old saved state and shared links still work.
+  var STYLE_ALIASES = { abb: 'pair', aba: 'pair' };
   var LEAGUE_NAMES = { great: 'Great League', ultra: 'Ultra League', master: 'Master League' };
   // The 'any' value is kept (saved state and shared links use it); only the label changed.
-  var STYLE_NAMES = { abc: 'ABC', abb: 'ABB', aba: 'ABA', any: 'Best score' };
-  var STYLE_HINTS = { abc: 'ABC style', abb: 'ABB style', aba: 'ABA style', any: 'best score (no typing rule)' };
+  var STYLE_NAMES = { abc: 'ABC', pair: 'Shared type', any: 'Best score' };
+  var STYLE_HINTS = { abc: 'ABC style', pair: 'shared type style (ABB / ABA)', any: 'best score (no typing rule)' };
+  // What each typing layout (lead / swap / closer) means, for the team detail.
+  var LAYOUT_NOTES = {
+    ABC: 'no two members share a type',
+    ABB: 'the safe swap and closer share a type',
+    ABA: 'the lead and closer share a type',
+    AAB: 'the lead and safe swap share a type',
+    AAA: 'all three share a type'
+  };
   var ROLE_NAMES = { lead: 'Lead', swap: 'Safe swap', closer: 'Closer' };
   var LEAGUE_CP = { great: 1500, ultra: 2500, master: 10000 };
   var MAX_MATCHES = 8;
@@ -29,7 +39,8 @@
   // whether they are ranked in the league is checked once rankings load (see validatePicks).
   function applySaved(s, saved) {
     if (LEAGUES.indexOf(saved.league) !== -1) s.league = saved.league;
-    if (STYLES.indexOf(saved.style) !== -1) s.style = saved.style;
+    var style = STYLE_ALIASES[saved.style] || saved.style;
+    if (STYLES.indexOf(style) !== -1) s.style = style;
     if (Array.isArray(saved.picks)) {
       s.picks = [0, 1].map(function (i) {
         var id = saved.picks[i];
@@ -379,6 +390,7 @@
         '<span class="team-rank">' + (i + 1) + '</span>' +
         '<span class="team-icons">' + d.members.map(function (m) { return icon(m.id, 32); }).join('') + '</span>' +
         '<span class="team-names">' + d.members.map(function (m) { return escapeHtml(m.name); }).join(' · ') + '</span>' +
+        '<span class="layout" title="Typing layout (lead / safe swap / closer)">' + d.layout + '</span>' +
         '<span class="team-score" title="Team score out of 100">' + d.displayScore + '</span></button></li>';
     }).join('');
 
@@ -459,8 +471,9 @@
         }).join(' ') + '</p>'
       : '<p class="shared">No type hits two members super-effectively.</p>';
 
+    var layoutNote = LAYOUT_NOTES[d.layout] ? ' Layout <strong>' + d.layout + '</strong>: ' + LAYOUT_NOTES[d.layout] + '.' : '';
     return '<p class="coverage">Has a winning answer to <strong>' + d.beats + ' of the top ' + d.threatCount +
-      '</strong> Pokémon in the league.</p>' +
+      '</strong> Pokémon in the league.' + layoutNote + '</p>' +
       '<div class="members">' + members + '</div>' +
       '<div class="report">' +
       '<section><h3>Top strengths</h3><p class="hint">Top-30 meta threats this team beats most easily.</p>' + threatList(d.strengths, true) + '</section>' +
@@ -563,5 +576,9 @@
   bindRadios('style', 'style', function () { runSearch(); });
   bindTheme();
   renderDataDate();
+  // Rewrite an old or non-canonical shared link (e.g. a merged style like s=abb) to its current form.
+  if (location.hash && hashFor(state) && location.hash !== hashFor(state)) {
+    history.replaceState(null, '', hashFor(state));
+  }
   runSearch();
 })();

@@ -460,12 +460,32 @@
   }
 
   // Team styles, read over [lead, safe swap, closer].
+  //   abc:  no two members share a type
+  //   pair: exactly two share a type, placed as ABB (swap + closer) or ABA (lead + closer); which
+  //         one is decided by role fit. abb/aba alone are kept for layoutOf and direct callers.
+  //   any:  no typing rule ("Best score" in the UI)
+  function isAbb(l, s, c) { return sharesType(s, c) && !sharesType(l, s) && !sharesType(l, c); }
+  function isAba(l, s, c) { return sharesType(l, c) && !sharesType(l, s) && !sharesType(s, c); }
   var STYLES = {
     abc: function (l, s, c) { return !sharesType(l, s) && !sharesType(l, c) && !sharesType(s, c); },
-    abb: function (l, s, c) { return sharesType(s, c) && !sharesType(l, s) && !sharesType(l, c); },
-    aba: function (l, s, c) { return sharesType(l, c) && !sharesType(l, s) && !sharesType(s, c); },
+    pair: function (l, s, c) { return isAbb(l, s, c) || isAba(l, s, c); },
+    abb: isAbb,
+    aba: isAba,
     any: function () { return true; }
   };
+
+  // Typing layout of a team in [lead, swap, closer] order, e.g. "ABC", "ABB", "ABA", "AAB". Each
+  // member gets the letter of the first earlier member it shares a type with, else a new letter.
+  function layoutOf(members) {
+    var letters = [];
+    members.forEach(function (m, i) {
+      var p = m.pokemon || m;
+      var same = -1;
+      for (var j = 0; j < i && same < 0; j++) if (sharesType(p, members[j].pokemon || members[j])) same = j;
+      letters.push(same >= 0 ? letters[same] : 'ABC'.charAt(new Set(letters).size));
+    });
+    return letters.join('');
+  }
 
   var ORDERS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
 
@@ -614,6 +634,7 @@
     return {
       score: team.score,
       displayScore: displayScore(team.score),
+      layout: layoutOf(team.members),
       // How many of the league's top threats (all THREAT_COUNT) the team has a winning answer to.
       beats: beats,
       threatCount: ctx.threats.length,
@@ -642,6 +663,7 @@
     matchup: matchup,
     createContext: createContext,
     assignRoles: assignRoles,
+    layoutOf: layoutOf,
     sharedWeaknesses: sharedWeaknesses,
     scoreTeam: scoreTeam,
     suggest: suggest,

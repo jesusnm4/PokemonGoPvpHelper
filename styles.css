@@ -207,6 +207,10 @@ h3 { font-size: 1rem; margin: 0; }
 .team-icons { display: flex; flex-shrink: 0; }
 .team-icons .poke { width: 32px; height: 32px; }
 .team-icons .poke + .poke { margin-left: -6px; }
+.layout {
+  flex-shrink: 0; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 4px; padding: 0 5px;
+}
 .team-score { flex-shrink: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 .results-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .results-head .chip { flex-shrink: 0; }

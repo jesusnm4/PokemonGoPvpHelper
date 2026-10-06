@@ -36,8 +36,7 @@
         <legend>Team style</legend>
         <div class="segmented">
           <label title="No two members share a type"><input type="radio" name="style" value="abc"> ABC <small>balanced</small></label>
-          <label title="Safe swap and closer share a type; the lead covers what beats them"><input type="radio" name="style" value="abb"> ABB</label>
-          <label title="Lead and closer share a type; the safe swap is different"><input type="radio" name="style" value="aba"> ABA</label>
+          <label title="Exactly two members share a type: ABB (safe swap and closer) or ABA (lead and closer), whichever fits their roles better"><input type="radio" name="style" value="pair"> Shared type <small>ABB / ABA</small></label>
           <label title="No typing rule: the highest-scoring team wins, shared types allowed"><input type="radio" name="style" value="any"> Best score</label>
         </div>
       </fieldset>
