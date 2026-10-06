@@ -420,7 +420,8 @@
     rankings.forEach(function (r) {
       var pokemon = gamemaster.pokemonById[r.id];
       if (!pokemon || !r.moveset.length) return;
-      var entry = { id: r.id, pokemon: pokemon, ranking: r, battler: undefined };
+      // rank: 1-based position in PvPoke's overall rankings for the league.
+      var entry = { id: r.id, rank: ranked.length + 1, pokemon: pokemon, ranking: r, battler: undefined };
       byId[r.id] = entry;
       ranked.push(entry);
     });
@@ -585,6 +586,8 @@
       return {
         id: e.id, name: e.pokemon.name, types: e.pokemon.types, role: ROLE_NAMES[i],
         rankScore: e.ranking.score,
+        rank: e.rank,
+        rankedCount: ctx.ranked.length,
         moves: e.ranking.moveset.map(function (id) {
           var m = gm.movesById[id];
           return { id: id, name: m ? m.name : id, type: m ? m.type : null, elite: !!(e.pokemon.elite && e.pokemon.elite.indexOf(id) !== -1) };

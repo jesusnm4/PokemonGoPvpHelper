@@ -9,6 +9,7 @@
   var STYLE_NAMES = { abc: 'ABC', abb: 'ABB', aba: 'ABA', any: 'Best score' };
   var STYLE_HINTS = { abc: 'ABC style', abb: 'ABB style', aba: 'ABA style', any: 'best score (no typing rule)' };
   var ROLE_NAMES = { lead: 'Lead', swap: 'Safe swap', closer: 'Closer' };
+  var LEAGUE_CP = { great: 1500, ultra: 2500, master: 10000 };
   var MAX_MATCHES = 8;
   var QUICK_PICKS = 6;
   var PICK_ID = /^[a-z0-9_]{1,64}$/;   // shape of a PvPoke species id
@@ -432,6 +433,9 @@
         '<p class="role">' + ROLE_NAMES[m.role] + '</p>' +
         '<h3>' + escapeHtml(m.name) + '</h3>' +
         '<p class="types">' + typeChips(m.types) + '</p>' +
+        '<p class="pvp-rank"><a href="https://pvpoke.com/rankings/all/' + LEAGUE_CP[state.league] + '/overall/' +
+        encodeURIComponent(m.id) + '/" target="_blank" rel="noopener" title="Open in PvPoke">PvPoke #' + m.rank + '</a>' +
+        ' <small>of ' + m.rankedCount + ' · score ' + m.rankScore.toFixed(1) + '</small></p>' +
         '</div></div>' +
         '<dl>' +
         '<dt>Fast move</dt><dd><ul class="moves">' + move(fast) + '</ul></dd>' +

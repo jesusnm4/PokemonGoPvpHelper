@@ -76,6 +76,7 @@ All in `js/engine.js`, pure and DOM-free.
 
 For each team member:
 - role (lead / safe swap / closer)
+- PvPoke overall rank and score in the league, linking to its PvPoke rankings page
 - recommended fast move and two charged moves, with move types
 - recommended IVs: rank-1 stat product IVs, level, and CP for the league
 

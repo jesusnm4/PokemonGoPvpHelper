@@ -30,8 +30,8 @@ two Pokémon to get suggested teams, share them as a link, and check your own Po
 - Pokémon search by name or nickname (shadow forms included), plus one-tap popular picks
 - Pick one Pokémon to get two partners, or two to get the best third; the top 5 teams are listed
   with a team score out of 100
-- Per Pokémon: role (lead, safe swap, closer), recommended fast and charged moves (Elite TM moves
-  marked), rank-1 IVs with level and CP
+- Per Pokémon: role (lead, safe swap, closer), its PvPoke rank and score in the league (linked to
+  PvPoke), recommended fast and charged moves (Elite TM moves marked), rank-1 IVs with level and CP
 - Per team: how many of the league's top 100 it has a winning answer to, top 3 strengths, top 3
   weaknesses, and any type that hits two members super-effectively
 - **Check your IVs** on any team member: your spread's rank among all IV combinations, its stat

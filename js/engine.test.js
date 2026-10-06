@@ -231,6 +231,9 @@
 
       var d = E.describeTeam(ctx, teams[0]);
       eq(league + ': roles', d.members.map(function (m) { return m.role; }), ['lead', 'swap', 'closer']);
+      ok(league + ': members carry their PvPoke rank', d.members.every(function (m) {
+        return ctx.ranked[m.rank - 1].id === m.id && m.rankedCount === ctx.ranked.length;
+      }));
       ok(league + ': IVs fit the cap', d.members.every(function (m) { return m.ivs.cp <= cap; }));
       ok(league + ': every member has a fast and a charged move', d.members.every(function (m) { return m.moves.length >= 2; }));
       eq(league + ': three strengths and three weaknesses', [d.strengths.length, d.weaknesses.length], [3, 3]);
