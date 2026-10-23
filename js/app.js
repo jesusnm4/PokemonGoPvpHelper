@@ -2,11 +2,11 @@
 (function () {
   var KEY = 'pvphelper-state-v1';
   var IV_KEY = 'pvphelper-ivs-v1';   // { speciesId: [atk, def, hp] } the viewer entered
-  var LEAGUES = ['great', 'ultra', 'master'];
+  var LEAGUES = ['great', 'ultra', 'master', 'fantasy'];
   var STYLES = ['abc', 'pair', 'any'];
   // Styles that were merged into another; old saved state and shared links still work.
   var STYLE_ALIASES = { abb: 'pair', aba: 'pair' };
-  var LEAGUE_NAMES = { great: 'Great League', ultra: 'Ultra League', master: 'Master League' };
+  var LEAGUE_NAMES = { great: 'Great League', ultra: 'Ultra League', master: 'Master League', fantasy: 'Fantasy Cup' };
   // The 'any' value is kept (saved state and shared links use it); only the label changed.
   var STYLE_NAMES = { abc: 'ABC', pair: 'Shared type', any: 'Best score' };
   var STYLE_HINTS = { abc: 'ABC style', pair: 'shared type style (ABB / ABA)', any: 'best score (no typing rule)' };
@@ -19,7 +19,8 @@
     AAA: 'all three share a type'
   };
   var ROLE_NAMES = { lead: 'Lead', swap: 'Safe swap', closer: 'Closer' };
-  var LEAGUE_CP = { great: 1500, ultra: 2500, master: 10000 };
+  var LEAGUE_CP = { great: 1500, ultra: 2500, master: 10000, fantasy: 1500 };
+  var LEAGUE_CUP = { great: 'all', ultra: 'all', master: 'all', fantasy: 'fantasy' };   // PvPoke cup id
   var MAX_MATCHES = 8;
   var QUICK_PICKS = 6;
   var PICK_ID = /^[a-z0-9_]{1,64}$/;   // shape of a PvPoke species id
@@ -399,7 +400,7 @@
       '<div class="results-head"><h2>' + heading + '</h2>' +
       '<button type="button" class="chip" data-action="share">Copy link</button></div>' +
       '<p class="hint">' + LEAGUE_NAMES[state.league] + ', ' + STYLE_HINTS[state.style] +
-      '. Team score (out of 100) rates how well the team covers the league’s top 100 Pokémon.</p>' +
+      '. Team score (out of 100) rates how well the team covers the top 100 Pokémon in ' + LEAGUE_NAMES[state.league] + '.</p>' +
       '<ol class="team-list">' + list + '</ol>' +
       '<div id="team-detail">' + renderDetail(described[state.selected]) + '</div>';
     // On a phone the results start below the fold; after a pick, bring them into view.
@@ -445,7 +446,7 @@
         '<p class="role">' + ROLE_NAMES[m.role] + '</p>' +
         '<h3>' + escapeHtml(m.name) + '</h3>' +
         '<p class="types">' + typeChips(m.types) + '</p>' +
-        '<p class="pvp-rank"><a href="https://pvpoke.com/rankings/all/' + LEAGUE_CP[state.league] + '/overall/' +
+        '<p class="pvp-rank"><a href="https://pvpoke.com/rankings/' + LEAGUE_CUP[state.league] + '/' + LEAGUE_CP[state.league] + '/overall/' +
         encodeURIComponent(m.id) + '/" target="_blank" rel="noopener" title="Open in PvPoke">PvPoke #' + m.rank + '</a>' +
         ' <small>of ' + m.rankedCount + ' · score ' + m.rankScore.toFixed(1) + '</small></p>' +
         '</div></div>' +
@@ -473,7 +474,7 @@
 
     var layoutNote = LAYOUT_NOTES[d.layout] ? ' Layout <strong>' + d.layout + '</strong>: ' + LAYOUT_NOTES[d.layout] + '.' : '';
     return '<p class="coverage">Has a winning answer to <strong>' + d.beats + ' of the top ' + d.threatCount +
-      '</strong> Pokémon in the league.' + layoutNote + '</p>' +
+      '</strong> Pokémon in ' + LEAGUE_NAMES[state.league] + '.' + layoutNote + '</p>' +
       '<div class="members">' + members + '</div>' +
       '<div class="report">' +
       '<section><h3>Top strengths</h3><p class="hint">Top-30 meta threats this team beats most easily.</p>' + threatList(d.strengths, true) + '</section>' +
